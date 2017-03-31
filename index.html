@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>OhMyCookie</title>
+	<link rel="stylesheet" href="css/main.css">
+	<style type="text/css">
+		*{
+			margin: 0;
+		}
+		#paper{
+			border: 1px solid black;
+		}
+	</style>
+	<script type = "text/javascript" src = "https://code.jquery.com/jquery-3.2.1.min.js"></script>
+</head>
+
+<body>
+	<canvas id="paper" width="0" height="0">
+		
+
+	</canvas>
+
+	<script type="text/javascript">	
+		var c = document.getElementById("paper");
+		var ctx = c.getContext("2d");
+		ctx.moveTo(0,0);
+		var x0 = 0;
+		var y0 = 0;
+		var x1 = 0;
+		var y1 = 0;
+
+		// Begin
+		init();	
+
+		// Draw
+		$( "#paper" ).mousemove(function( event ) {
+			x0 = x1;
+			y0 = y1;
+			x1 = event.pageX;
+			y1 = event.pageY;
+			if(isClicking)
+			{
+				ctx.moveTo(x0, y0);
+				ctx.lineTo(x1, y1);
+				ctx.stroke();
+			}
+		});
+
+		// Check if the mouse is dragging
+		var isClicking = false;
+		$( "#paper" ).mousedown(function() {
+			isClicking = true;
+		})
+		.mouseup(function() {
+		    isClicking = false;
+		});
+
+		function init(){
+			c.width = $(window).width() - 100;
+			c.height = $(window).height() - 100;
+		}
+
+		function clear(){
+			ctx.clearRect(0, 0, c.width, c.height);
+			c.width = c.width;
+			return(console.log("Paper cleared"))
+		}
+	</script>
+</body>
+</html>
