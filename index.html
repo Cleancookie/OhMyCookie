@@ -3,6 +3,7 @@
 <head>
 	<title>OhMyCookie</title>
 	<link rel="stylesheet" href="css/main.css">
+
 	<style type="text/css">
 		*{
 			margin: 0;
@@ -11,6 +12,7 @@
 			border: 1px solid black;
 		}
 	</style>
+
 	<script type = "text/javascript" src = "https://code.jquery.com/jquery-3.2.1.min.js"></script>
 </head>
 
@@ -56,14 +58,29 @@
 		});
 
 		function init(){
-			c.width = $(window).width() - 100;
-			c.height = $(window).height() - 100;
+			var width = $(window).width() - 10;
+			var height = $(window).height() - 10;
+
+			// Always 16:9 aspect ratio
+			if((width / (16/9)) < height)
+			{
+				c.width = width;
+				c.height = width / (16/9);
+			}
+			else
+			{
+				c.width = height / (9/16);
+				c.height = height;
+			}
+			
+			console.log("Paper initialised to " + c.width + "*" + c.height)
 		}
 
 		function clear(){
 			ctx.clearRect(0, 0, c.width, c.height);
 			c.width = c.width;
-			return(console.log("Paper cleared"))
+			console.log("Paper cleared")
+			return(null)
 		}
 	</script>
 </body>
