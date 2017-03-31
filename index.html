@@ -21,6 +21,7 @@
 		
 
 	</canvas>
+	<div class="response"></div>
 
 	<script type="text/javascript">	
 		var c = document.getElementById("paper");
@@ -48,18 +49,19 @@
 			}
 		});
 
-		// Check if the mouse is dragging
+		// Check if the mouse is dragging / clicking / mousedown
 		var isClicking = false;
-		$( "#paper" ).mousedown(function() {
+		$( "#paper" ).mousedown(function(){
 			isClicking = true;
 		})
-		.mouseup(function() {
+		.mouseup(function(){
 		    isClicking = false;
 		});
 
+		// Resize paper
 		function init(){
-			var width = $(window).width() - 10;
-			var height = $(window).height() - 10;
+			var width = $(window).width() - 7;
+			var height = $(window).height() - 7;
 
 			// Always 16:9 aspect ratio
 			if((width / (16/9)) < height)
@@ -72,15 +74,57 @@
 				c.width = height / (9/16);
 				c.height = height;
 			}
-			
+			clear();
 			console.log("Paper initialised to " + c.width + "*" + c.height)
 		}
 
 		function clear(){
 			ctx.clearRect(0, 0, c.width, c.height);
 			c.width = c.width;
-			console.log("Paper cleared")
 			return(null)
+		}
+
+		function send(){
+			var image = c.toDataURL("image/png");
+			$.post(
+				"upload_data.php",
+				{
+					hidden_data: image	
+				},
+				function(data, status){
+					console.log("Image sent");
+				}				
+			)
+		}
+
+		function load(){
+			$.post(
+				"load_img.php",
+				{
+					hidden_data: "yerd"	
+				},
+				function(data, status){
+					var imgToLoad = new Image();
+					imgToLoad.onload = function(){
+						ctx.drawImage(this, 0, 0);
+						console.log("Image loaded");
+					}
+					imgToLoad.src = data;
+				}				
+			)
+		}
+
+		var endLoop = false;
+		function beginLoop(){
+			endLoop = false;
+			setTimeout(function(){
+				load();    
+				if (!endLoop) beginLoop()
+			}, 350)
+		}
+
+		function stopLoop(){
+			endLoop = true;
 		}
 	</script>
 </body>
