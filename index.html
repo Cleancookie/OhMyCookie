@@ -2,6 +2,7 @@
 <html>
 <head>
 	<title>OhMyCookie</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
 	<link rel="stylesheet" href="css/main.css">
 
 	<style type="text/css">
@@ -17,37 +18,50 @@
 </head>
 
 <body>
-	<canvas id="paper" width="0" height="0">
-		
+	<canvas id="paper" width="0" height="0"></canvas>
 
-	</canvas>
-	<div class="response"></div>
+	<button type="button" class="btn btn-primary" onclick="init()">init</button>
+	<button type="button" class="btn btn-primary" onclick="send()">send</button>
+	<button type="button" class="btn btn-primary" onclick="load()">load</button>
+	<button type="button" class="btn btn-primary" onclick="beginGuessing()">beginGuessing</button>
+	<button type="button" class="btn btn-primary" onclick="beginGuessingMouse()">beginGuessingMouse</button>
+	<button type="button" class="btn btn-primary" onclick="beginDrawing()">beginDrawing</button>
+	<button type="button" class="btn btn-primary" onclick="beginDrawingMouse()">beginDrawingMouse</button>
+	<button type="button" class="btn btn-primary" onclick="stopLoop()">stop</button>
 
 	<script type="text/javascript">	
 		var c = document.getElementById("paper");
 		var ctx = c.getContext("2d");
-		ctx.moveTo(0,0);
 		var x0 = 0;
 		var y0 = 0;
 		var x1 = 0;
 		var y1 = 0;
+		var canDraw = true;
+		
 
 		// Begin
 		init();	
 
-		// Draw
+		// Drawing functions
 		$( "#paper" ).mousemove(function( event ) {
-			x0 = x1;
-			y0 = y1;
-			x1 = event.pageX;
-			y1 = event.pageY;
-			if(isClicking)
+			if(canDraw)
 			{
-				ctx.moveTo(x0, y0);
-				ctx.lineTo(x1, y1);
-				ctx.stroke();
+				x0 = x1;
+				y0 = y1;
+				x1 = event.pageX;
+				y1 = event.pageY;
+				if(isClicking)
+				{
+					draw();
+				}
 			}
 		});
+
+		function draw(){
+			ctx.moveTo(x0, y0);
+			ctx.lineTo(x1, y1);
+			ctx.stroke();
+		}
 
 		// Check if the mouse is dragging / clicking / mousedown
 		var isClicking = false;
@@ -60,8 +74,8 @@
 
 		// Resize paper
 		function init(){
-			var width = $(window).width() - 7;
-			var height = $(window).height() - 7;
+			var width = $(window).width() - 27;
+			var height = $(window).height() - 27;
 
 			// Always 16:9 aspect ratio
 			if((width / (16/9)) < height)
@@ -82,6 +96,61 @@
 			ctx.clearRect(0, 0, c.width, c.height);
 			c.width = c.width;
 			return(null)
+		}
+
+		function beginGuessingMouse(){
+			endLoop = false;
+			canDraw = false;
+			setTimeout(function(){
+				getMouse();    
+				draw();
+				if (!endLoop) beginGuessingMouse()
+			}, loopSpeed)
+		}
+
+		function beginDrawingMouse(){
+			endLoop = false;
+			canDraw = true;
+			setTimeout(function(){
+				sendMouse();
+				if (!endLoop) beginDrawingMouse()
+			}, loopSpeed)
+		}
+
+		function sendMouse(){
+			var preX = x0 / c.width;
+			var preY = y0 / c.height;
+			var posX = x1 / c.width;
+			var posY = y1 / c.height;
+			$.post(
+				"receive_mouse.php",
+				{
+					old_x: preX,
+					old_y: preY,
+					mouse_x: posX,
+					mouse_y: posY	
+				},
+				function(data, status){
+
+				}			
+			)
+		}
+
+		function getMouse(){
+			$.post(
+				"send_mouse.php",
+				{
+
+				},
+				function(data, status){
+					var mouseLocation = data.split(',');
+					x0 = mouseLocation[0] * c.width;
+					y0 = mouseLocation[1] * c.height;
+					x1 = mouseLocation[2] * c.width;
+					y1 = mouseLocation[3] * c.height;
+					console.log(data);
+				}			
+			)
 		}
 
 		function send(){
@@ -106,26 +175,44 @@
 				function(data, status){
 					var imgToLoad = new Image();
 					imgToLoad.onload = function(){
-						ctx.drawImage(this, 0, 0);
+						clear();
+						ctx.drawImage(this, 0, 0, c.width, c.height);
 						console.log("Image loaded");
 					}
 					imgToLoad.src = data;
-				}				
+				}			
 			)
 		}
 
 		var endLoop = false;
-		function beginLoop(){
+		var loopSpeed = 100;
+
+		// Used for when people are guessing (loads entire image)
+		function beginGuessing(){
 			endLoop = false;
+			canDraw = false;
 			setTimeout(function(){
 				load();    
-				if (!endLoop) beginLoop()
-			}, 350)
+				if (!endLoop) beginGuessing()
+			}, loopSpeed)
+		}
+
+		// Used for when the person is drawing (sends entire image)
+		function beginDrawing(){
+			canDraw = true;
+			endLoop = false;
+			setTimeout(function(){
+				send();    
+				if (!endLoop) beginDrawing()
+			}, loopSpeed)
 		}
 
 		function stopLoop(){
 			endLoop = true;
 		}
 	</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
 </body>
 </html>
