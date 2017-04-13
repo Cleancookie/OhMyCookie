@@ -1,0 +1,9 @@
+{
+   "name": "OhMyCookie",
+   "description": "Pictionary Test",
+   "author": "Code-and.Coffee",
+   "dependencies" : {
+      "express": "4.x",
+      "socket.io": "*"
+   }
+}

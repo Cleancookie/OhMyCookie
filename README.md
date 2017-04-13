@@ -1,2 +1,0 @@
-# OhMyCookie
-Pictionary test
