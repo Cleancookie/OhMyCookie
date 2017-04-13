@@ -1,3 +1,9 @@
+$ = require('jquery');
+
+$(document).ready(function(){
+   console.log("yerd");
+})
+
 document.addEventListener("DOMContentLoaded", function() {
    var mouse = {
       click: false,
@@ -5,6 +11,7 @@ document.addEventListener("DOMContentLoaded", function() {
       pos: {x:0, y:0},
       pos_prev: false
    };
+
    // get canvas element and create context
    var canvas  = document.getElementById('drawing');
    var context = canvas.getContext('2d');

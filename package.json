@@ -1,9 +1,26 @@
 {
-   "name": "OhMyCookie",
-   "description": "Pictionary Test",
-   "author": "Code-and.Coffee",
-   "dependencies" : {
-      "express": "4.x",
-      "socket.io": "*"
-   }
+  "name": "OhMyCookie",
+  "description": "Pictionary Test",
+  "author": "Code-and.Coffee",
+  "dependencies": {
+    "express": "^4.15.2",
+    "jquery": "^3.2.1",
+    "socket.io": "^1.7.3"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "version": "1.0.0",
+  "main": "server.js",
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Cleancookie/OhMyCookie.git"
+  },
+  "keywords": [],
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Cleancookie/OhMyCookie/issues"
+  },
+  "homepage": "https://github.com/Cleancookie/OhMyCookie#readme"
 }
