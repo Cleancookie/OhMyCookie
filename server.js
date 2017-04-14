@@ -20,6 +20,8 @@ var connectedUsers = [];
 
 // event-handler for new incoming connections 
 io.on('connection', function (socket) {
+	console.log("New connection");
+
 	// Variables
 	var clientID = socket.id;
 	var username = "NULL";
@@ -29,6 +31,9 @@ io.on('connection', function (socket) {
 
 	// User wants to connect (has username and clientID)
 	socket.on('initName', function(data){
+		// Log to console
+		console.log("+" + data.username + " has connected.");
+
 		// Make user object
 		var newUser = {
 			'username':data.username,
@@ -36,8 +41,19 @@ io.on('connection', function (socket) {
 		}
 		username = data.username;
 
+		// See if user already exists
+		var index = -1;
+		connectedUsers.find(function(item, i){
+			if(item.id === clientID){
+				index = i;
+				return i;
+			} 
+		});
+
 		// Add item to our array
-		connectedUsers.push(newUser);
+		if(index == -1){
+			connectedUsers.push(newUser);
+		}
 
 		// Send list of all connected users
 		for (var i in connectedUsers) {
@@ -53,6 +69,8 @@ io.on('connection', function (socket) {
 
 	// User updated their username
 	socket.on('newUsername', function(data){
+
+
 		// Make user object
 		var newUser = {
 			'username':data.username,
@@ -64,11 +82,14 @@ io.on('connection', function (socket) {
 		connectedUsers.find(function(item, i){
 			if(item.id === clientID){
 				index = i;
+				return i;
 			} 
 		});
 
 		// Update our array
 		if(index > -1){
+			// Log to console
+			console.log(connectedUsers[index].username + " has changed their name to " + newUser.username);
 			connectedUsers[index] = newUser;
 		}
 		else{
@@ -93,19 +114,27 @@ io.on('connection', function (socket) {
 	});
 
 	socket.on('disconnect', function(){
-		socket.broadcast.emit('delUser', {'id':clientID})
-
+		// Log to console
+		console.log("Closed connection");
+		
 		// See if this person has an entry in connectedUsers
 		var index = -1;
 		connectedUsers.find(function(item, i){
 			if(item.id === clientID){
 				index = i;
+				return i;
 			} 
 		});
 
 		// delet dis
 		if(index > -1){
+			console.log("-" + connectedUsers[index].username + " has disconnected.");
+			socket.broadcast.emit('delUser', connectedUsers[index])
 			connectedUsers.splice(index, 1);
 		}
+	});
+
+	socket.on('debug', function(){
+		console.log(connectedUsers);
 	})
 });

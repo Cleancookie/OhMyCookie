@@ -12,10 +12,17 @@ $(document).ready(function(){
 	height  = window.innerHeight;
 	socket  = io.connect();
 	myID	= -1;
-
+	canDraw	= true;
 	players = [];
 
-	// set canvas to full browser width/height
+	// Calculate canvas size so it's always 4:3
+	if(width > height){
+		width = height * (4/3);
+	}
+	else{
+		height = width * (3/4);
+		
+	}
 	canvas.width = width;
 	canvas.height = height;
 
@@ -34,6 +41,10 @@ $(document).ready(function(){
 		mouse.move = true;
 	};
 
+	/*********************/
+	/* PLAYER MANAGEMENT */
+	/*********************/
+
 	// Get my ID
 	socket.on('updateID', function(data){
 		myID = data.id;
@@ -42,25 +53,30 @@ $(document).ready(function(){
 	// Add new user to our array
 	socket.on('newUser', function(data){
 
+		// Check if user already exists
 		var index = -1;
 		players.find(function(item, i){
 			if(item.id === data.id){
+				console.log(">> true")
 				index = i;
+				return i;
 			} 
 		});
 
-		if(index = -1){
+		if(index == -1){
 			console.log(data.username + " has connected.")
 			players.push(data);
 		}
 		else{
-			console.log(players[index].username + " changed their name to " data.username + ".")
+			console.log(players[index].username + " changed their name to " + data.username + ".")
 			players[index] = data;
 		}
 	})
 
 	// Someone disconnected
 	socket.on('delUser', function(data){
+		console.log(data.username + " has disconnected.");
+
 		var index = -1;
 
 		// look for ID in players[]
@@ -75,6 +91,17 @@ $(document).ready(function(){
 			players.splice(index, 1);
 		}
 	})
+
+	/*****************/
+	/* MAIN GAMEPLAY */
+	/*****************/
+
+	// clear screen
+	socket.on('clearCanvas', clearCanvas());
+	function clearCanvas(){
+		canvas.width = width;
+		canvas.height = height;
+	}
 
 	// draw line received from server
 	socket.on('draw_line', function (data) {
@@ -94,7 +121,7 @@ $(document).ready(function(){
 			mouse.move = false;
 		}
 		mouse.pos_prev = {x: mouse.pos.x, y: mouse.pos.y};
-		setTimeout(mainLoop, 25);
+		setTimeout(mainLoop, (1/60));
 	}
 
 	mainLoop();
@@ -127,4 +154,9 @@ function newName(username){
 // send new username
 function initName(username){
 	socket.emit('initName', {'username' : username});
+}
+
+// debug
+function debug(){
+	socket.emit('debug', {});
 }
