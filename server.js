@@ -35,6 +35,7 @@ io.on('connection', function (socket) {
 	// Tell everyone who disconnected
 	io.on('disconnect', function(){
 		var userIndex = userIDs.indexOf(clientID);
+		console.log(clientID);
 		if(userIndex > -1){
 			userIDs.splice(userIndex, 1);
 		}
