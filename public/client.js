@@ -41,10 +41,21 @@ $(document).ready(function(){
 
 	// Add new user to our array
 	socket.on('newUser', function(data){
-		var index = players.indexOf(data);
+
+		var index = -1;
+		players.find(function(item, i){
+			if(item.id === data.id){
+				index = i;
+			} 
+		});
+
 		if(index = -1){
 			console.log(data.username + " has connected.")
 			players.push(data);
+		}
+		else{
+			console.log(players[index].username + " changed their name to " data.username + ".")
+			players[index] = data;
 		}
 	})
 
