@@ -14,6 +14,7 @@ $(document).ready(function(){
 	myID	= -1;
 	canDraw	= true;
 	players = [];
+	word 	= "";
 
 	// Calculate canvas size so it's always 4:3
 	if(width > height){
@@ -92,16 +93,33 @@ $(document).ready(function(){
 		}
 	})
 
+	/************/
+	/* GAMEPLAY */
+	/************/
+
+	// New player's turn to draw
+	socket.on('newTurn', function(data){
+		if(myID == data.id){
+			console.log("It is now your turn to start drawing.")
+			canDraw = true;
+		}
+		else{
+			console.log("New player drawing: " + data.username);
+			canDraw = false;
+		}
+	})
+
+	// Get word from server
+	socket.on('newWord'), function(data){
+		word = data.word;
+	}
+
 	/*****************/
-	/* MAIN GAMEPLAY */
+	/* DRAWING TOOLS */
 	/*****************/
 
 	// clear screen
 	socket.on('clearCanvas', clearCanvas());
-	function clearCanvas(){
-		canvas.width = width;
-		canvas.height = height;
-	}
 
 	// draw line received from server
 	socket.on('draw_line', function (data) {
@@ -149,6 +167,25 @@ function newName(username){
 		players.push(tempUser);
 	}
 	socket.emit('newUsername', {'username' : username});
+}
+
+// reset the canvas
+function clearCanvas(){
+	// Get size of the viewport
+	width   = window.innerWidth;
+	height  = window.innerHeight;
+
+	// Change sizes to 4:3
+	if(width > height){
+		width = height * (4/3);
+	}
+	else{
+		height = width * (3/4);
+	}
+
+	// Set canvas size
+	canvas.width = width;
+	canvas.height = height;
 }
 
 // send new username
