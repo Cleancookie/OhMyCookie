@@ -1,18 +1,18 @@
 $(document).ready(function(){
-	var mouse = {
+	mouse = {
 		click: false,
 		move: false,
 		pos: {x:0, y:0},
 		pos_prev: false
 	};
 	// get canvas element and create context
-	var canvas  = document.getElementById('drawing');
-	var context = canvas.getContext('2d');
-	var width   = window.innerWidth;
-	var height  = window.innerHeight;
-	var socket  = io.connect();
+	canvas  = document.getElementById('drawing');
+	context = canvas.getContext('2d');
+	width   = window.innerWidth;
+	height  = window.innerHeight;
+	socket  = io.connect();
 
-	var players = [];
+	players = [];
 
 	// set canvas to full browser width/height
 	canvas.width = width;
@@ -45,6 +45,7 @@ $(document).ready(function(){
 	// Add new user to our array
 	socket.on('newUser', function(data){
 		console.log("New client id=" + data.id);
+		players.push(data.id);
 	})
 
 	// Someone disconnected
@@ -70,3 +71,7 @@ $(document).ready(function(){
 
 	mainLoop();
 });
+
+function newName(username){
+	socket.emit('newUsername', {'username':username});
+}

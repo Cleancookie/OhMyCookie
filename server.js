@@ -15,30 +15,38 @@ console.log('Node app is running on port', app.get('port'));
 // array of all lines drawn
 var line_history = [];
 
-// array of all user ids
-var userIDs = [];
+// array of all users
+var connectedUsers = [];
 
-// event-handler for new incoming connections
+// event-handler for new incoming connections 
 io.on('connection', function (socket) {
 	// Variables
 	var clientID = socket.id;
-	userIDs.push(clientID);
 
-	// Tell client who is connected
-	for (var i in userIDs) {
-		socket.emit('newUser', { id: userIDs[i] } );
-	}
-
-	// Tell everyone else the new user's ID
-	socket.broadcast.emit('newUser', { id: clientID });
-
-	// Tell everyone who disconnected
-	socket.on('disconnect', function(){
-		var userIndex = userIDs.indexOf(clientID);
-		if(userIndex > -1){
-			userIDs.splice(userIndex, 1);
+	// user wants to change their username
+	socket.on('newUsername', function(data){
+		// Make user object
+		var newUser = {
+			'username':data.username,
+			'id': clientID
 		}
-		socket.broadcast.emit('delUser', { id: clientID });
+
+		// See if user already exists
+		var index = -1;
+		connectedUsers.find(function(item, i){
+			if(item.id === clientID){
+				index = i;
+				return i;
+			}
+		});
+
+		// Update our array
+		if(index > -1){
+			connectedUsers[index] = newUser;
+		}
+		else{
+			connectedUsers.push(newUser);
+		}
 	})
 
 	// first send the history to the new client
@@ -53,6 +61,4 @@ io.on('connection', function (socket) {
 		// send line to all clients
 		io.emit('draw_line', { line: data.line });
 	});
-
-
 });
