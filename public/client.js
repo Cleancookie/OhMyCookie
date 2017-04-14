@@ -50,7 +50,7 @@ $(document).ready(function(){
 		console.log(players);
 	})
 
-	socket.on('delUser'), fcuntion(data){
+	socket.on('delUser', function(data){
 		console.log("Client disconnected id=" + data.id);
 		console.log(data);
 		var userIndex = players.indexOf(data.id);
@@ -58,7 +58,7 @@ $(document).ready(function(){
 			players.splice(userIndex, 1);
 		}
 		console.log(players);
-	}
+	})
 
 	// main loop, running every 25ms
 	function mainLoop() {
