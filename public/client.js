@@ -5,13 +5,14 @@ $(document).ready(function(){
 		pos: {x:0, y:0},
 		pos_prev: false
 	};
-
 	// get canvas element and create context
 	var canvas  = document.getElementById('drawing');
 	var context = canvas.getContext('2d');
 	var width   = window.innerWidth;
 	var height  = window.innerHeight;
 	var socket  = io.connect();
+
+	var players = [];
 
 	// set canvas to full browser width/height
 	canvas.width = width;
@@ -42,9 +43,22 @@ $(document).ready(function(){
 		console.log(data);
 	});
 
-	socket.on('thisisu', function (data){
+	socket.on('newUser', function(data){
+		console.log("New client id=" + data.id);
 		console.log(data);
+		players.push(data.id);
+		console.log(players);
 	})
+
+	socket.on('delUser'), fcuntion(data){
+		console.log("Client disconnected id=" + data.id);
+		console.log(data);
+		var userIndex = players.indexOf(data.id);
+		if(userIndex > -1){
+			players.splice(userIndex, 1);
+		}
+		console.log(players);
+	}
 
 	// main loop, running every 25ms
 	function mainLoop() {
