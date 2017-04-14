@@ -3,10 +3,11 @@ var express = require('express'),
     http = require('http'),
     socketIo = require('socket.io');
 
-// start webserver on port 8080
+// start webserver
 var server =  http.createServer(app);
 var io = socketIo.listen(server);
-server.listen(process.env.PORT || 8080);
+server.listen(process.env.PORT || 13337);
+
 // add directory with our static files
 app.use(express.static(__dirname + '/public'));
 console.log('Node app is running on port', app.get('port'));
@@ -15,8 +16,9 @@ console.log('Node app is running on port', app.get('port'));
 var line_history = [];
 
 // event-handler for new incoming connections
-io.on('connection', function (socket) {
-
+io.on('connection', function (socket, client) {
+  console.log(client.id);
+  
    // first send the history to the new client
    for (var i in line_history) {
       socket.emit('draw_line', { line: line_history[i] } );
