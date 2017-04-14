@@ -26,7 +26,7 @@ io.on('connection', function (socket) {
 	// Tell everyone who disconnected
 	io.on('disconnect', function(){
 		socket.emit('delUser', { id: clientID });
-	}
+	})
 
 	// first send the history to the new client
 	for (var i in line_history) {
