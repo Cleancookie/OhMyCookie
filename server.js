@@ -22,8 +22,36 @@ var connectedUsers = [];
 io.on('connection', function (socket) {
 	// Variables
 	var clientID = socket.id;
+	var username = "NULL";
 
-	// user wants to change their username
+	// Send ID to the user
+	socket.emit('updateID', { 'id' : clientID });
+
+	// User wants to connect (has username and clientID)
+	socket.on('initName', function(data){
+		// Make user object
+		var newUser = {
+			'username':data.username,
+			'id': clientID
+		}
+		username = data.username;
+
+		// Add item to our array
+		connectedUsers.push(newUser);
+
+		// Send list of all connected users
+		for (var i in connectedUsers) {
+			socket.emit('newUser', { 
+				'username': connectedUsers[i].username,
+				'id' : connectedUsers[i].id 
+				});
+		}
+
+		// Tell everyone else about this user
+		socket.broadcast.emit('newUser', newUser)
+	})
+
+	// User updated their username
 	socket.on('newUsername', function(data){
 		// Make user object
 		var newUser = {
@@ -36,8 +64,7 @@ io.on('connection', function (socket) {
 		connectedUsers.find(function(item, i){
 			if(item.id === clientID){
 				index = i;
-				return i;
-			}
+			} 
 		});
 
 		// Update our array
@@ -47,6 +74,9 @@ io.on('connection', function (socket) {
 		else{
 			connectedUsers.push(newUser);
 		}
+
+		// Broadcast to all other users
+		socket.broadcast.emit('newUser', newUser)
 	})
 
 	// first send the history to the new client
@@ -61,4 +91,8 @@ io.on('connection', function (socket) {
 		// send line to all clients
 		io.emit('draw_line', { line: data.line });
 	});
+
+	socket.on('disconnect', function(){
+		socket.broadcast.emit('delUser', {'id':clientID})
+	})
 });

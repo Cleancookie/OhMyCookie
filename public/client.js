@@ -11,6 +11,7 @@ $(document).ready(function(){
 	width   = window.innerWidth;
 	height  = window.innerHeight;
 	socket  = io.connect();
+	myID	= -1;
 
 	players = [];
 
@@ -33,6 +34,37 @@ $(document).ready(function(){
 		mouse.move = true;
 	};
 
+	// Get my ID
+	socket.on('updateID', function(data){
+		myID = data.id;
+	})
+
+	// Add new user to our array
+	socket.on('newUser', function(data){
+		var index = players.indexOf(data);
+		if(index = -1){
+			console.log(data.username + " has connected.")
+			players.push(data);
+		}
+	})
+
+	// Someone disconnected
+	socket.on('delUser', function(data){
+		var index = -1;
+
+		// look for ID in players[]
+		players.find(function(item, i){
+			if(item.id === data.id){
+				index = i;
+			} 
+		});
+
+		// delete if exists
+		if(index > -1){
+			players.splice(index, 1);
+		}
+	})
+
 	// draw line received from server
 	socket.on('draw_line', function (data) {
 		var line = data.line;
@@ -41,21 +73,6 @@ $(document).ready(function(){
 		context.lineTo(line[1].x * width, line[1].y * height);
 		context.stroke();
 	});
-
-	// Add new user to our array
-	socket.on('newUser', function(data){
-		console.log("New client id=" + data.id);
-		players.push(data.id);
-	})
-
-	// Someone disconnected
-	socket.on('delUser', function(data){
-		console.log("Client disconnected id=" + data.id);
-		var userIndex = players.indexOf(data.id);
-		if(userIndex > -1){
-			players.splice(userIndex, 1);
-		}
-	})
 
 	// main loop, running every 25ms
 	function mainLoop() {
@@ -72,6 +89,31 @@ $(document).ready(function(){
 	mainLoop();
 });
 
+// send new username
 function newName(username){
-	socket.emit('newUsername', {'username':username});
+	var tempUser = {
+		'username' : username,
+		'id' : myID }
+	// Update our username in our own array
+	// See if user already exists
+	var index = -1;
+	players.find(function(item, i){
+		if(item.id === myID){
+			index = i;
+		} 
+	});
+
+	// Update our array
+	if(index > -1){
+		players[index].username = username;
+	}
+	else{
+		players.push(tempUser);
+	}
+	socket.emit('newUsername', {'username' : username});
+}
+
+// send new username
+function initName(username){
+	socket.emit('initName', {'username' : username});
 }
