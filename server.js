@@ -21,7 +21,7 @@ var userIDs = [];
 // event-handler for new incoming connections
 io.on('connection', function (socket) {
 	// Variables
-	clientID = socket.id;
+	var clientID = socket.id;
 	userIDs.push(clientID);
 
 	// Tell client who is connected
