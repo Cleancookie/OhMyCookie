@@ -94,5 +94,18 @@ io.on('connection', function (socket) {
 
 	socket.on('disconnect', function(){
 		socket.broadcast.emit('delUser', {'id':clientID})
+
+		// See if this person has an entry in connectedUsers
+		var index = -1;
+		connectedUsers.find(function(item, i){
+			if(item.id === clientID){
+				index = i;
+			} 
+		});
+
+		// delet dis
+		if(index > -1){
+			connectedUsers.splice(index, 1);
+		}
 	})
 });
