@@ -15,17 +15,30 @@ console.log('Node app is running on port', app.get('port'));
 // array of all lines drawn
 var line_history = [];
 
+// array of all user ids
+var userIDs = [];
+
 // event-handler for new incoming connections
 io.on('connection', function (socket) {
 	// Variables
-	var clientID = socket.id;
+	clientID = socket.id;
+	userIDs.push(clientID);
 
-	// Tell everyone the new user's ID
-	socket.emit('newUser', { id: clientID });
+	// Tell client who is connected
+	for (var i in userIDs) {
+		socket.emit('newUser', { id: userIDs[i] } );
+	}
+
+	// Tell everyone else the new user's ID
+	socket.broadcast('newUser', { id: clientID });
 
 	// Tell everyone who disconnected
 	io.on('disconnect', function(){
-		socket.emit('delUser', { id: clientID });
+		var userIndex = userIDs.indexOf(clientID);
+		if(userIndex > -1){
+			userIDs.splice(userIndex, 1);
+		}
+		socket.broadcast('delUser', { id: clientID });
 	})
 
 	// first send the history to the new client

@@ -45,19 +45,14 @@ $(document).ready(function(){
 
 	socket.on('newUser', function(data){
 		console.log("New client id=" + data.id);
-		console.log(data);
-		players.push(data.id);
-		console.log(players);
 	})
 
 	socket.on('delUser', function(data){
 		console.log("Client disconnected id=" + data.id);
-		console.log(data);
 		var userIndex = players.indexOf(data.id);
 		if(userIndex > -1){
 			players.splice(userIndex, 1);
 		}
-		console.log(players);
 	})
 
 	// main loop, running every 25ms
