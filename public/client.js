@@ -42,6 +42,10 @@ $(document).ready(function(){
 		console.log(data);
 	});
 
+	socket.on('thisisu', function (data){
+		console.log(data);
+	})
+
 	// main loop, running every 25ms
 	function mainLoop() {
 		// check if the user is drawing
