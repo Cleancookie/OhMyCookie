@@ -24,7 +24,7 @@ io.on('connection', function (socket) {
 	socket.emit('newUser', { id: clientID });
 
 	// Tell everyone who disconnected
-	io.on('disconnect'), function(){
+	io.on('disconnect', function(){
 		socket.emit('delUser', { id: clientID });
 	}
 
