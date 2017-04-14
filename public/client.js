@@ -43,10 +43,12 @@ $(document).ready(function(){
 		console.log(data);
 	});
 
+	// Add new user to our array
 	socket.on('newUser', function(data){
 		console.log("New client id=" + data.id);
 	})
 
+	// Someone disconnected
 	socket.on('delUser', function(data){
 		console.log("Client disconnected id=" + data.id);
 		var userIndex = players.indexOf(data.id);

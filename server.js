@@ -30,7 +30,7 @@ io.on('connection', function (socket) {
 	}
 
 	// Tell everyone else the new user's ID
-	socket.broadcast('newUser', { id: clientID });
+	socket.broadcast.emit('newUser', { id: clientID });
 
 	// Tell everyone who disconnected
 	io.on('disconnect', function(){
@@ -38,7 +38,7 @@ io.on('connection', function (socket) {
 		if(userIndex > -1){
 			userIDs.splice(userIndex, 1);
 		}
-		socket.broadcast('delUser', { id: clientID });
+		socket.broadcast.emit('delUser', { id: clientID });
 	})
 
 	// first send the history to the new client
