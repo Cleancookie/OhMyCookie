@@ -18,8 +18,23 @@ var line_history = [];
 // array of all users
 var connectedUsers = [];
 
+// Current client drawing
+var drawer = -1;
+
 // event-handler for new incoming connections 
 io.on('connection', function (socket) {
+
+	/**************/
+	/* SETTING UP */
+	/**************/
+
+	socket.emit('clearCanvas', {});
+
+	// first send the history to the new client
+	for (var i in line_history) {
+		socket.emit('draw_line', { line: line_history[i] } );
+	}
+
 	console.log("New connection");
 
 	// Variables
@@ -29,10 +44,14 @@ io.on('connection', function (socket) {
 	// Send ID to the user
 	socket.emit('updateID', { 'id' : clientID });
 
+	/*********************/
+	/* CLIENT MANAGEMENT */
+	/*********************/
+
 	// User wants to connect (has username and clientID)
 	socket.on('initName', function(data){
 		// Log to console
-		console.log("+" + data.username + " has connected.");
+		console.log("+" + data.username + " has connected." + clientID);
 
 		// Make user object
 		var newUser = {
@@ -62,15 +81,14 @@ io.on('connection', function (socket) {
 				'id' : connectedUsers[i].id 
 				});
 		}
-
+		
 		// Tell everyone else about this user
-		socket.broadcast.emit('newUser', newUser)
+		socket.broadcast.emit('newUser', newUser);
+
 	})
 
 	// User updated their username
 	socket.on('newUsername', function(data){
-
-
 		// Make user object
 		var newUser = {
 			'username':data.username,
@@ -89,7 +107,8 @@ io.on('connection', function (socket) {
 		// Update our array
 		if(index > -1){
 			// Log to console
-			console.log(connectedUsers[index].username + " has changed their name to " + newUser.username);
+			console.log(connectedUsers[index].username + 
+				" has changed their name to " + newUser.username);
 			connectedUsers[index] = newUser;
 		}
 		else{
@@ -100,23 +119,10 @@ io.on('connection', function (socket) {
 		socket.broadcast.emit('newUser', newUser)
 	})
 
-	// first send the history to the new client
-	for (var i in line_history) {
-		socket.emit('draw_line', { line: line_history[i] } );
-	}
-
-	// add handler for message type "draw_line".
-	socket.on('draw_line', function (data) {
-		// add received line to history
-		line_history.push(data.line);
-		// send line to all clients
-		io.emit('draw_line', { line: data.line });
-	});
-
-	socket.on('disconnect', function(){
+		socket.on('disconnect', function(){
 		// Log to console
 		console.log("Closed connection");
-		
+
 		// See if this person has an entry in connectedUsers
 		var index = -1;
 		connectedUsers.find(function(item, i){
@@ -133,8 +139,57 @@ io.on('connection', function (socket) {
 			connectedUsers.splice(index, 1);
 		}
 	});
+	/************/
+	/* GAMEPLAY */
+	/************/
 
+	function gameStart(){
+		console.log("Game Start");
+		drawer = -1;
+		nextPlayer();
+	}
+
+	function nextPlayer(){
+		if(connectedUsers.length > drawer){
+			drawer++;
+			console.log("Now drawing: " + connectedUsers[drawer].username);
+			io.sockets.emit('newTurn', connectedUsers[drawer]);
+			console.log(connectedUsers[drawer].id);
+			io.to(connectedUsers[drawer].id).emit('newWord', {'word' : 'yerd'});
+		}
+		else{
+			console.log("Game end");
+			console.log("Total drawers: " + drawer);
+		}
+	}
+
+	function newTurn(){
+
+	}
+
+	/***********/
+	/* DRAWING */
+	/***********/
+
+	// Drawer has drawn a line
+	socket.on('draw_line', function (data) {
+		// add received line to history
+		line_history.push(data.line);
+		// send line to all clients
+		io.emit('draw_line', { line: data.line });
+	});
+
+
+	/* DEBUGGING MESSAGES */
 	socket.on('debug', function(){
 		console.log(connectedUsers);
+	});
+
+	socket.on('gameStart', function(){
+		gameStart();
+	})
+
+	socket.on('nextPlayer', function(){
+		nextPlayer();
 	})
 });

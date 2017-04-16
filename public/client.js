@@ -69,7 +69,8 @@ $(document).ready(function(){
 			players.push(data);
 		}
 		else{
-			console.log(players[index].username + " changed their name to " + data.username + ".")
+			console.log(players[index].username + 
+				" changed their name to " + data.username + ".")
 			players[index] = data;
 		}
 	})
@@ -110,16 +111,31 @@ $(document).ready(function(){
 	})
 
 	// Get word from server
-	socket.on('newWord'), function(data){
+	socket.on('newWord', function(data){
 		word = data.word;
+		console.log("There is a new word")
+		console.log("Your word to draw: " + word);
+	})
+
+	// Send a message to the server
+	function sendMsg(message){
+		socket.emit('message', { 'message' : message})
 	}
+
+	// Server announce that someone guessed the word
+	socket.on('turnWinner', function(data){
+		console.log(data.username + " has guessed the word!");
+		console.log("The word was " + data.word + ".");
+		// Might need to do some stuff here about the timer and such
+	})
 
 	/*****************/
 	/* DRAWING TOOLS */
 	/*****************/
-
 	// clear screen
-	socket.on('clearCanvas', clearCanvas());
+	socket.on('clearCanvas', function(){
+		clearCanvas();
+	});
 
 	// draw line received from server
 	socket.on('draw_line', function (data) {
@@ -133,7 +149,7 @@ $(document).ready(function(){
 	// main loop, running every 25ms
 	function mainLoop() {
 		// check if the user is drawing
-		if (mouse.click && mouse.move && mouse.pos_prev) {
+		if (mouse.click && mouse.move && mouse.pos_prev && canDraw) {
 			// send line to to the server
 			socket.emit('draw_line', { line: [ mouse.pos, mouse.pos_prev ] });
 			mouse.move = false;
@@ -186,6 +202,9 @@ function clearCanvas(){
 	// Set canvas size
 	canvas.width = width;
 	canvas.height = height;
+	
+	// Log to console
+	console.log("Canvas cleared");
 }
 
 // send new username
@@ -197,3 +216,42 @@ function initName(username){
 function debug(){
 	socket.emit('debug', {});
 }
+
+function gameStart(){
+	socket.emit('gameStart', {})
+}
+
+function nextPlayer(){
+	socket.emit('nextPlayer', {})
+}
+
+/* SOCKETS CHEAT SHEET
+
+
+ // sending to sender-client only
+ socket.emit('message', "this is a test");
+
+ // sending to all clients, include sender
+ io.emit('message', "this is a test");
+
+ // sending to all clients except sender
+ socket.broadcast.emit('message', "this is a test");
+
+ // sending to all clients in 'game' room(channel) except sender
+ socket.broadcast.to('game').emit('message', 'nice game');
+
+ // sending to all clients in 'game' room(channel), include sender
+ io.in('game').emit('message', 'cool game');
+
+ // sending to sender client, only if they are in 'game' room(channel)
+ socket.to('game').emit('message', 'enjoy the game');
+
+ // sending to all clients in namespace 'myNamespace', include sender
+ io.of('myNamespace').emit('message', 'gg');
+
+ // sending to individual socketid
+ socket.broadcast.to(socketid).emit('message', 'for your eyes only');
+ io.to(socketid).emit('message', 'for your eyes only');
+
+
+*/
