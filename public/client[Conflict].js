@@ -100,7 +100,6 @@ $(document).ready(function(){
 
 	// New player's turn to draw
 	socket.on('newTurn', function(data){
-		clearCanvas();
 		if(myID == data.id){
 			console.log("It is now your turn to start drawing.")
 			canDraw = true;
@@ -114,25 +113,20 @@ $(document).ready(function(){
 	// Get word from server
 	socket.on('newWord', function(data){
 		word = data.word;
+		console.log("There is a new word")
 		console.log("Your word to draw: " + word);
 	})
 
-	// Receive a message from the server
-	socket.on('message', function(data){
-		console.log(data.username + ": " + data.message)
-	})
+	// Send a message to the server
+	function sendMsg(message){
+		socket.emit('message', { 'message' : message})
+	}
 
 	// Server announce that someone guessed the word
 	socket.on('turnWinner', function(data){
 		console.log(data.username + " has guessed the word!");
 		console.log("The word was " + data.word + ".");
 		// Might need to do some stuff here about the timer and such
-	})
-
-	// Game end
-	socket.on('gameEnd', function(data){
-		console.log("The game is now over.");
-		canDraw = true;
 	})
 
 	/*****************/
@@ -218,18 +212,9 @@ function initName(username){
 	socket.emit('initName', {'username' : username});
 }
 
-// Send a message to the server
-function sendMsg(message){
-	socket.emit('message', { 'message' : message})
-}
-
 // debug
 function debug(){
 	socket.emit('debug', {});
-}
-
-function debugClear(){
-	socket.emit('debugClear', {})
 }
 
 function gameStart(){
@@ -266,6 +251,7 @@ function nextPlayer(){
 
  // sending to individual socketid
  socket.broadcast.to(socketid).emit('message', 'for your eyes only');
+ io.to(socketid).emit('message', 'for your eyes only');
 
 
 */

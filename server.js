@@ -18,8 +18,12 @@ var line_history = [];
 // array of all users
 var connectedUsers = [];
 
+// Game variables
 // Current client drawing
 var drawer = -1;
+var inProg = false;
+var word = "yerd";
+
 
 // event-handler for new incoming connections 
 io.on('connection', function (socket) {
@@ -51,12 +55,13 @@ io.on('connection', function (socket) {
 	// User wants to connect (has username and clientID)
 	socket.on('initName', function(data){
 		// Log to console
-		console.log("+" + data.username + " has connected." + clientID);
+		console.log("+" + data.username + " has connected. [id : " + clientID + "]");
 
 		// Make user object
 		var newUser = {
-			'username':data.username,
-			'id': clientID
+			'username': data.username,
+			'id': clientID,
+			'score': 0
 		}
 		username = data.username;
 
@@ -78,13 +83,13 @@ io.on('connection', function (socket) {
 		for (var i in connectedUsers) {
 			socket.emit('newUser', { 
 				'username': connectedUsers[i].username,
-				'id' : connectedUsers[i].id 
+				'id': connectedUsers[i].id,
+				'score': connectedUsers[i].score
 				});
 		}
 		
 		// Tell everyone else about this user
 		socket.broadcast.emit('newUser', newUser);
-
 	})
 
 	// User updated their username
@@ -92,7 +97,8 @@ io.on('connection', function (socket) {
 		// Make user object
 		var newUser = {
 			'username':data.username,
-			'id': clientID
+			'id': clientID,
+			'score': 0
 		}
 
 		// See if user already exists
@@ -109,7 +115,7 @@ io.on('connection', function (socket) {
 			// Log to console
 			console.log(connectedUsers[index].username + 
 				" has changed their name to " + newUser.username);
-			connectedUsers[index] = newUser;
+			connectedUsers[index].username = newUser.username;
 		}
 		else{
 			connectedUsers.push(newUser);
@@ -146,26 +152,49 @@ io.on('connection', function (socket) {
 	function gameStart(){
 		console.log("Game Start");
 		drawer = -1;
+		gameProg = true;
+		line_history = [];
 		nextPlayer();
 	}
 
 	function nextPlayer(){
-		if(connectedUsers.length > drawer){
+		if(drawer + 1 < connectedUsers.length){
 			drawer++;
+			line_history = [];
 			console.log("Now drawing: " + connectedUsers[drawer].username);
 			io.sockets.emit('newTurn', connectedUsers[drawer]);
 			console.log(connectedUsers[drawer].id);
-			io.to(connectedUsers[drawer].id).emit('newWord', {'word' : 'yerd'});
+			io.to(connectedUsers[drawer].id).emit('newWord', {'word' : word});
+			gameProg = true;
 		}
 		else{
 			console.log("Game end");
 			console.log("Total drawers: " + drawer);
+			io.sockets.emit('gameEnd', {})
+			gameProg = false;
 		}
 	}
 
-	function newTurn(){
-
+	function turnWinner(){
+		io.sockets.emit('turnWinner', { 'username' : username, 'word' : word})
+		gameProg = false;
+		nextPlayer();
 	}
+
+	socket.on('message', function(data){
+		if(gameProg){
+			if(data.message == word){
+				console.log(username + " has guessed correctly!");
+				turnWinner();
+			}
+			else{
+				io.sockets.emit('message', { 'username' : username, 'message' : data.message})
+			}
+		}
+		else{
+			io.sockets.emit('message', { 'username' : username, 'message' : data.message})
+		}
+	});
 
 	/***********/
 	/* DRAWING */
@@ -191,5 +220,10 @@ io.on('connection', function (socket) {
 
 	socket.on('nextPlayer', function(){
 		nextPlayer();
+	})
+
+	socket.on('debugClear', function(){
+		line_history = [];
+		io.sockets.emit('clearCanvas', {});
 	})
 });
