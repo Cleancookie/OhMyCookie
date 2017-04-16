@@ -10,7 +10,7 @@ server.listen(process.env.PORT || 13337);
 	
 // add directory with our static files
 app.use(express.static(__dirname + '/public'));
-console.log('Node app is running on port', app.get('port'));
+console.log('Node app is running');
 
 // array of all lines drawn
 var line_history = [];
@@ -24,20 +24,14 @@ var drawer = -1;
 var inProg = false;
 var word = "yerd";
 
-
 // event-handler for new incoming connections 
-io.on('connection', function (socket) {
-
+io.on('connection', function (socket){
 	/**************/
 	/* SETTING UP */
 	/**************/
-
 	socket.emit('clearCanvas', {});
 
-	// first send the history to the new client
-	for (var i in line_history) {
-		socket.emit('draw_line', { line: line_history[i] } );
-	}
+	sendCanvas();
 
 	console.log("New connection");
 
@@ -182,7 +176,7 @@ io.on('connection', function (socket) {
 	}
 
 	socket.on('message', function(data){
-		if(gameProg){
+		if(inProg){
 			if(data.message == word){
 				console.log(username + " has guessed correctly!");
 				turnWinner();
@@ -226,4 +220,19 @@ io.on('connection', function (socket) {
 		line_history = [];
 		io.sockets.emit('clearCanvas', {});
 	})
+	
+	/*********/
+	/* OTHER */
+	/*********/
+	
+	socket.on('reloadCanvas', function (){
+		sendCanvas();
+	})
+
+	function sendCanvas(){
+		// first send the history to the new client
+		for (var i in line_history) {
+			socket.emit('draw_line', { line: line_history[i] });
+		}
+	}
 });

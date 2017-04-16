@@ -1,4 +1,4 @@
-$(document).ready(function(){
+$(document).ready(function (){
 	mouse = {
 		click: false,
 		move: false,
@@ -17,15 +17,7 @@ $(document).ready(function(){
 	word 	= "";
 
 	// Calculate canvas size so it's always 4:3
-	if(width > height){
-		width = height * (4/3);
-	}
-	else{
-		height = width * (3/4);
-		
-	}
-	canvas.width = width;
-	canvas.height = height;
+	clearCanvas();
 
 	// register mouse event handlers
 	canvas.onmousedown = function(e){ 
@@ -36,9 +28,10 @@ $(document).ready(function(){
 	};
 
 	// normalize mouse position to range 0.0 - 1.0
-	canvas.onmousemove = function(e) {
-		mouse.pos.x = e.clientX / width;
-		mouse.pos.y = e.clientY / height;
+	canvas.onmousemove = function (e) {
+		// Make sure it's relative to the canvas
+		mouse.pos.x = (e.clientX - $('#drawing').offset().left) / width;
+		mouse.pos.y = (e.clientY - $('#drawing').offset().top) / height;
 		mouse.move = true;
 	};
 
@@ -165,6 +158,21 @@ $(document).ready(function(){
 	}
 
 	mainLoop();
+
+	/* OTHER */
+	$(window).resize(function (){
+		clearCanvas();
+		socket.emit('reloadCanvas', {});
+	});
+
+	$('#txtMessage').keypress(function (e) {
+		var keyCode = (e.keyCode ? e.keyCode : e.which);
+		if (keyCode == '13') {
+			console.log($('#txtMessage').val())
+			sendMsg($('#txtMessage').val());
+			$('#txtMessage').val("");
+		}
+	});
 });
 
 // send new username
@@ -178,7 +186,7 @@ function newName(username){
 	players.find(function(item, i){
 		if(item.id === myID){
 			index = i;
-		} 
+		}
 	});
 
 	// Update our array
@@ -193,12 +201,12 @@ function newName(username){
 
 // reset the canvas
 function clearCanvas(){
-	// Get size of the viewport
-	width   = window.innerWidth;
-	height  = window.innerHeight;
+	// Get size of the window (mobile first meta tag)
+	width = $(window).width() - 32;
+	height = $(window).height() - 32;
 
 	// Change sizes to 4:3
-	if(width > height){
+	if (width / (4/3) > height) {
 		width = height * (4/3);
 	}
 	else{

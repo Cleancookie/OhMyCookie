@@ -2,12 +2,34 @@
 	margin: 0;
 	padding: 0;
 }
-body, html{
-	width: 100%;
-	height: 100%;
-	background-color: rgba(190, 190, 190, 1);
+body{
+	overflow: hidden;
+}
+.master-container{
+	background-color: rgb(41, 196, 232);
 }
 #drawing {
 	background-color: rgba(252, 252, 252, 1);
 	display: block;
+	border-radius: 16px;
+}
+.canvas-container{
+	padding: 16px;
+}
+.left-bar{
+	background-color: #a4fff3;
+	margin: 16px 0 16px 0;
+	padding: 16px 0 0 0;
+	border-radius: 16px;
+}
+.connected-users{
+	background-color: white;
+	height: 100%;
+}
+.chat{
+	background-color: white;
+	height: 600px;
+}
+.message-bar{
+	background-color: white;
 }

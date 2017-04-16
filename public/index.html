@@ -3,12 +3,57 @@
 <head>
 	<title>OhMyCookie</title>
 	<meta charset="utf-8">
-	<link rel="stylesheet" href="style.css" />
+	<link rel="stylesheet" href="style.css"/>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
 	<script src="socket.io/socket.io.js"></script>
 	<script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+
 	<script src="client.js"></script>
 </head>
 <body>
-	<canvas id="drawing"></canvas>
+	<div class="container-fluid master-container">
+		<div class="row">
+
+			<div class="col-sm-3">
+				<div class="container-fluid">
+					<div class="row">							
+						<div class="col-sm-12">
+							<div class="left-bar">
+								<div class="container-fluid">
+									<div class="row">
+										<div class="col-sm-12">
+											<div class="connected-users">
+												<p>connected-users</p>
+											</div>
+										</div>
+										<div class="col-sm-12">
+											<div class="chat">
+												<p>chat</p>
+											</div>
+										</div>
+										<div class="col-sm-12">
+											<div class="message-bar">
+												<input type="text" class="form-control" id="txtMessage">
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>	
+						</div>				
+					</div>
+				</div>
+			</div>
+
+			<div class="col-sm-9">
+				<div class="canvas-container">
+					<canvas id="drawing"></canvas>
+				</div>
+			</div>
+
+		</div>
+	</div>
 </body>
 </html>
