@@ -183,7 +183,7 @@ $(document).ready(function (){
 			mouse.move = false;
 		}
 		mouse.pos_prev = {x: mouse.pos.x, y: mouse.pos.y};
-		setTimeout(mainLoop, (1/60));
+		setTimeout(mainLoop, (1/30));
 	}
 
 	mainLoop();
@@ -194,11 +194,11 @@ $(document).ready(function (){
 		socket.emit('reloadCanvas', {});
 	});
 
-	$('#txtMessage').keypress(function (e) {
+	$('#txtMsg').keypress(function (e) {
 		var keyCode = (e.keyCode ? e.keyCode : e.which);
 		if (keyCode == '13') {
-			sendMsg($('#txtMessage').val());
-			$('#txtMessage').val("");
+			sendMsg($('#txtMsg').val());
+			$('#txtMsg').val("");
 		}
 	});
 });
