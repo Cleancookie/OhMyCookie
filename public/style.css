@@ -11,16 +11,19 @@ body{
 #drawing {
 	background-color: rgba(252, 252, 252, 1);
 	display: block;
-	border-radius: 16px;
+	border: 1px solid red;
 }
 .canvas-container{
-	padding: 16px;
+	padding: 0px;
 }
-.left-bar{
-	background-color: #a4fff3;
-	margin: 16px 0 16px 0;
-	padding: 16px 0 0 0;
-	border-radius: 16px;
+.side-bar{
+	position: absolute;
+	top: 0;
+	left: 0;
+	background-color: rgba(15, 129, 226, 0.87);
+	padding: 22px 12px 12px 12px;
+	margin: 1% 0 0 0;
+	border-radius: 0 8px 8px 0;
 }
 .connected-users{
 	background-color: white;

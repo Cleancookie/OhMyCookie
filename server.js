@@ -32,12 +32,12 @@ io.on('connection', function (socket){
 	socket.emit('clearCanvas', {});
 
 	sendCanvas();
-
-	console.log("New connection");
-
+	
 	// Variables
 	var clientID = socket.id;
 	var username = "NULL";
+
+	console.log("New connection [id : " + clientID + "]");
 
 	// Send ID to the user
 	socket.emit('updateID', { 'id' : clientID });
@@ -119,9 +119,9 @@ io.on('connection', function (socket){
 		socket.broadcast.emit('newUser', newUser)
 	})
 
-		socket.on('disconnect', function(){
+	socket.on('disconnect', function(){
 		// Log to console
-		console.log("Closed connection");
+		console.log("Closed connection [id : " + clientID + "]");
 
 		// See if this person has an entry in connectedUsers
 		var index = -1;
@@ -134,7 +134,7 @@ io.on('connection', function (socket){
 
 		// delet dis
 		if(index > -1){
-			console.log("-" + connectedUsers[index].username + " has disconnected.");
+			console.log("-" + connectedUsers[index].username + " has disconnected. [id : " + clientID + "]");
 			socket.broadcast.emit('delUser', connectedUsers[index])
 			connectedUsers.splice(index, 1);
 		}
@@ -185,9 +185,10 @@ io.on('connection', function (socket){
 				io.sockets.emit('message', { 'username' : username, 'message' : data.message})
 			}
 		}
-		else{
+		else {
 			io.sockets.emit('message', { 'username' : username, 'message' : data.message})
 		}
+		console.log(username + ": " + data.message);
 	});
 
 	/***********/

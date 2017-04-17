@@ -36,12 +36,32 @@ $(document).ready(function (){
 		mouse.move = true;
 	};
     
-    // Get username from user
-    vex.dialog.prompt({
+	// Get username from user
+
+
+	vex.dialog.open({
         message: 'Please enter a username',
-        placeholder: '',
+		showCloseButton: false,
+		escapeButtonCloses: false,
+		overlayClosesOnClick: false,
+		input: [
+			'<style>',
+				'.vex-custom-field-wrapper {',
+					'margin: 1em 0;',
+				'}',
+				'.vex-custom-field-wrapper > label {',
+					'display: inline-block;',
+					'margin-bottom: .2em;',
+				'}',
+			'</style>',
+			'<div class="vex-custom-field-wrapper">',
+				'<div class="vex-custom-input-wrapper">',
+					'<input name="username" type="text" value=""/>',
+				'</div>',
+			'</div>'
+		].join(''),
         callback: function (value) {
-            initName(value)
+            initName(value.username)
         }
     })
 
@@ -210,16 +230,16 @@ function newName(username){
 // reset the canvas
 function clearCanvas(){
 	// Get size of the window (mobile first meta tag)
-	width = $(window).width() - 32;
-	height = $(window).height() - 32;
+	width = $(window).width() - 2;
+	height = $(window).height() - 2;
 
-	// Change sizes to 4:3
-	if (width / (4/3) > height) {
-		width = height * (4/3);
-	}
-	else{
-		height = width * (3/4);
-	}
+	//// Change sizes to 16:9
+	//if (width / (16/9) > height) {
+	//	width = height * (16/9);
+	//}
+	//else{
+	//	height = width * (9/16);
+	//}
 
 	// Set canvas size
 	canvas.width = width;

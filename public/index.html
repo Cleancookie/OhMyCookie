@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
 	<title>OhMyCookie</title>
@@ -15,53 +15,29 @@
 
 
 	<script src="/vex-master/dist/js/vex.combined.min.js"></script>
-	<script>vex.defaultOptions.className = 'vex-theme-os'</script>
+	<script>vex.defaultOptions.className = 'vex-theme-top'</script>
 	<link href="/vex-master/dist/css/vex.css" rel="stylesheet" />
-	<link href="vex-master/dist/css/vex-theme-os.css" rel="stylesheet" />
+	<link href="vex-master/dist/css/vex-theme-top.css" rel="stylesheet" />
 
 	<script src="client.js"></script>
 </head>
 <body>
-	<div class="container-fluid master-container">
-		<div class="row">
-			
-			<div class="col-sm-3">
-				<div class="container-fluid">
-					<div class="row">							
-						<div class="col-sm-12">
-							<div class="left-bar">
-								<div class="container-fluid">
-									<div class="row">
-										<div class="col-sm-12">
-											<div class="connected-users">
-												<p>connected-users</p>
-											</div>
-										</div>
-										<div class="col-sm-12">
-											<div class="chat">
-												<p>chat</p>
-											</div>
-										</div>
-										<div class="col-sm-12">
-											<div class="message-bar">
-												<input type="text" class="form-control" id="txtMessage">
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>	
-						</div>				
-					</div>
-				</div>
-			</div>
+	<div class="canvas-container">
+		<canvas id="drawing"></canvas>
+	</div>
 
-			<div class="col-sm-9">
-				<div class="canvas-container">
-					<canvas id="drawing"></canvas>
-				</div>
+	<div class="side-bar">
+		<form>
+			<div class="form-group">
+				<textarea class="form-control" id="txtUsers" rows="8" disabled></textarea>
 			</div>
-
-		</div>
+			<div class="form-group">
+				<textarea class="form-control" id="txtArea" rows="24" disabled></textarea>
+			</div>
+			<div class="form-group">
+				<input type="text" class="form-control" id="txtMsg">
+			</div>
+		</form>
 	</div>
 </body>
 </html>
