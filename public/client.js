@@ -1,4 +1,5 @@
 $(document).ready(function (){
+
 	mouse = {
 		click: false,
 		move: false,
@@ -34,6 +35,15 @@ $(document).ready(function (){
 		mouse.pos.y = (e.clientY - $('#drawing').offset().top) / height;
 		mouse.move = true;
 	};
+    
+    // Get username from user
+    vex.dialog.prompt({
+        message: 'Please enter a username',
+        placeholder: '',
+        callback: function (value) {
+            initName(value)
+        }
+    })
 
 	/*********************/
 	/* PLAYER MANAGEMENT */
@@ -51,7 +61,6 @@ $(document).ready(function (){
 		var index = -1;
 		players.find(function(item, i){
 			if(item.id === data.id){
-				console.log(">> true")
 				index = i;
 				return i;
 			} 
@@ -168,7 +177,6 @@ $(document).ready(function (){
 	$('#txtMessage').keypress(function (e) {
 		var keyCode = (e.keyCode ? e.keyCode : e.which);
 		if (keyCode == '13') {
-			console.log($('#txtMessage').val())
 			sendMsg($('#txtMessage').val());
 			$('#txtMessage').val("");
 		}
