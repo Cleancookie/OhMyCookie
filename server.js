@@ -247,8 +247,9 @@ io.on('connection', function (socket){
 			executeCommand(command, params);
 		}
 		else {
-			if (inProg) {
-				if (data.message == word) {
+			if (inProg && username != connectedUsers[drawer].username) {
+				// check if the message matches the word
+				if (data.message.toLowerCase == word.toLowerCase) {
 					console.log(username + " has guessed correctly!");
 					turnWinner();
 				}
@@ -257,6 +258,7 @@ io.on('connection', function (socket){
 				}
 			}
 			else {
+				// emit back the message with the username on it
 				io.sockets.emit('message', { 'username' : username, 'message' : data.message })
 			}
 			console.log(username + ": " + data.message);
