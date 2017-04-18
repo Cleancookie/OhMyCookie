@@ -45,7 +45,37 @@ var words = ["bone", "dragon", "head", "snowflake",
 	"monkey", "cheese", "hand", "rocket", "basketball", "oval", "pants", 
 	"Mickey Mouse", "purse", "cup", "turtle", "jacket", "hippo", "stairs", 
 	"house", "boat", "tree", "helicopter", "truck", "bell", "star", "bear", 
-	"corn", "girl", "bunny", "cloud", "football", "skateboard", "ghost", "sun", "baby"]
+	"corn", "girl", "bunny", "cloud", "football", "skateboard", "ghost", "sun", "baby"];
+
+function refreshWordArray() {
+	var http = require('https');
+	var options = {
+		host: 'www.thegamegal.com',
+		path: '/wordgenerator/generator.php?game=2&category=6'
+	};
+	
+	var req = http.get(options, function (res) {
+		console.log('STATUS: ' + res.statusCode);
+		console.log('HEADERS: ' + JSON.stringify(res.headers));
+		
+		// Buffer the body entirely for processing as a whole.
+		var bodyChunks = [];
+		res.on('data', function (chunk) {
+			// You can process streamed parts here...
+			bodyChunks.push(chunk);
+		}).on('end', function () {
+			var body = Buffer.concat(bodyChunks);
+			console.log('BODY: ' + body);
+			words = JSON.parse(body);
+			console.log(words);
+			// ...and/or process the entire body here.
+		})
+	});
+	
+	req.on('error', function (e) {
+		console.log('ERROR: ' + e.message);
+	});
+}
 
 // event-handler for new incoming connections 
 io.on('connection', function (socket){
@@ -268,7 +298,7 @@ io.on('connection', function (socket){
 
 	/* DEBUGGING MESSAGES */
 	socket.on('debug', function(){
-		newWord();
+		makeReq();
 	});
 
 	socket.on('gameStart', function(){
