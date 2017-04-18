@@ -16,6 +16,7 @@ $(document).ready(function (){
 	canDraw	= true;
 	players = [];
 	word 	= "";
+	hasName = false;
 
 	// Calculate canvas size so it's always 4:3
 	clearCanvas();
@@ -37,33 +38,40 @@ $(document).ready(function (){
 	};
     
 	// Get username from user
-
-
-	vex.dialog.open({
-        message: 'Please enter a username',
-		showCloseButton: false,
-		escapeButtonCloses: false,
-		overlayClosesOnClick: false,
-		input: [
-			'<style>',
+	var usernameModal = function (){
+		vex.dialog.open({
+			message: 'Please enter a username',
+			showCloseButton: false,
+			escapeButtonCloses: false,
+			overlayClosesOnClick: false,
+			input: [
+				'<style>',
 				'.vex-custom-field-wrapper {',
-					'margin: 1em 0;',
+				'margin: 1em 0;',
 				'}',
 				'.vex-custom-field-wrapper > label {',
-					'display: inline-block;',
-					'margin-bottom: .2em;',
+				'display: inline-block;',
+				'margin-bottom: .2em;',
 				'}',
-			'</style>',
-			'<div class="vex-custom-field-wrapper">',
+				'</style>',
+				'<div class="vex-custom-field-wrapper">',
 				'<div class="vex-custom-input-wrapper">',
-					'<input name="username" type="text" value=""/>',
+				'<input name="username" type="text" value=""/>',
 				'</div>',
-			'</div>'
-		].join(''),
-        callback: function (value) {
-            initName(value.username)
-        }
-    })
+				'</div>'
+			].join(''),
+			callback: function (value) {
+				if (typeof value.username == 'undefined') {
+					usernameModal();
+				}
+				else {
+					initName(value.username);
+					hasName = true;
+				}
+			}
+		});
+	}
+	usernameModal();
 
 	/*********************/
 	/* PLAYER MANAGEMENT */
@@ -89,13 +97,27 @@ $(document).ready(function (){
 		if(index == -1){
 			console.log(data.username + " has connected.")
 			players.push(data);
+			
+			
 		}
-		else{
-			console.log(players[index].username + 
-				" changed their name to " + data.username + ".")
+		else {
+			console.log(players[index].username + " changed their name to " + data.username + ".")
 			players[index] = data;
 		}
+
+		refreshUsers();
 	})
+	
+	// Refresh txtUsers
+	function refreshUsers(){
+		// Clear txtUsers
+		$('#txtUsers').val('');
+
+		// Append all users
+		players.forEach(function (item, index){
+			$('#txtUsers').val($('#txtUsers').val() + item.username + "\n")
+		})
+	}
 
 	// Someone disconnected
 	socket.on('delUser', function(data){
@@ -114,6 +136,8 @@ $(document).ready(function (){
 		if(index > -1){
 			players.splice(index, 1);
 		}
+
+		refreshUsers();
 	})
 
 	/************/
@@ -123,11 +147,13 @@ $(document).ready(function (){
 	// New player's turn to draw
 	socket.on('newTurn', function(data){
 		clearCanvas();
-		if(myID == data.id){
+		if (myID == data.id) {
+			appendMsg("It is now your turn to start drawing.");
 			console.log("It is now your turn to start drawing.")
 			canDraw = true;
 		}
-		else{
+		else {
+			appendMsg("New player drawing: " + data.username);
 			console.log("New player drawing: " + data.username);
 			canDraw = false;
 		}
@@ -136,23 +162,28 @@ $(document).ready(function (){
 	// Get word from server
 	socket.on('newWord', function(data){
 		word = data.word;
+		appendMsg("Your word to draw: " + word);
 		console.log("Your word to draw: " + word);
 	})
 
 	// Receive a message from the server
-	socket.on('message', function(data){
+	socket.on('message', function (data){
+		appendMsg(data.username + ": " + data.message);
 		console.log(data.username + ": " + data.message)
 	})
 
 	// Server announce that someone guessed the word
-	socket.on('turnWinner', function(data){
+	socket.on('turnWinner', function (data){
+		appendMsg(data.username + " has guessed the word!");
 		console.log(data.username + " has guessed the word!");
+		appendMsg("The word was " + data.word + ".");
 		console.log("The word was " + data.word + ".");
 		// Might need to do some stuff here about the timer and such
 	})
 
 	// Game end
-	socket.on('gameEnd', function(data){
+	socket.on('gameEnd', function (data){
+		appendMsg("The game is now over.");
 		console.log("The game is now over.");
 		canDraw = true;
 	})
@@ -176,24 +207,35 @@ $(document).ready(function (){
 
 	// main loop, running every 25ms
 	function mainLoop() {
+		// scroll the txtArea
+
 		// check if the user is drawing
 		if (mouse.click && mouse.move && mouse.pos_prev && canDraw) {
 			// send line to to the server
 			socket.emit('draw_line', { line: [ mouse.pos, mouse.pos_prev ] });
 			mouse.move = false;
 		}
-		mouse.pos_prev = {x: mouse.pos.x, y: mouse.pos.y};
+		mouse.pos_prev = { x: mouse.pos.x, y: mouse.pos.y };
+		
+		if (hasName) {
+			$('#txtMsg').focus();
+		}
 		setTimeout(mainLoop, (1/30));
 	}
 
 	mainLoop();
-
+	
+	/*********/
 	/* OTHER */
+	/*********/
+
+	// Auto resize canvas
 	$(window).resize(function (){
 		clearCanvas();
 		socket.emit('reloadCanvas', {});
 	});
-
+	
+	// check if the person is pressing enter
 	$('#txtMsg').keypress(function (e) {
 		var keyCode = (e.keyCode ? e.keyCode : e.which);
 		if (keyCode == '13') {
@@ -201,7 +243,17 @@ $(document).ready(function (){
 			$('#txtMsg').val("");
 		}
 	});
+
 });
+
+var msgCount = 0;
+function appendMsg(message) {
+	// Append msg
+	$('#txtArea').val($('#txtArea').val() + message + "\n");
+	
+	// Scroll down
+	$('#txtArea').scrollTop($('#txtArea')[0].scrollHeight);
+}
 
 // send new username
 function newName(username){

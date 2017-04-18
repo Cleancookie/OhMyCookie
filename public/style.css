@@ -25,14 +25,17 @@ body{
 	margin: 1% 0 0 0;
 	border-radius: 0 8px 8px 0;
 }
-.connected-users{
-	background-color: white;
-	height: 100%;
+#txtUsers{
+	background-color: rgba(255, 255, 255, 1);
+	font-family: 'Open Sans', sans-serif;
 }
-.chat{
-	background-color: white;
-	height: 600px;
+#txtArea{
+	background-color: rgba(255, 255, 255, 1);
+	overflow: hidden;
+	font-family: 'Open Sans', sans-serif;
+	font-size: 14px;
 }
-.message-bar{
-	background-color: white;
+#txtMsg{
+	background-color: rgba(255, 255, 255, 1);
+	font-family: 'Open Sans', sans-serif;
 }

@@ -23,6 +23,29 @@ var connectedUsers = [];
 var drawer = -1;
 var inProg = false;
 var word = "yerd";
+var words = ["bone", "dragon", "head", "snowflake", 
+	"bed", "ring", "bus", "shoe", "cupcake", "branch", "bowl", 
+	"balloon", "sunglasses", "dinosaur", "milk", "cherry", 
+	"mountain", "snowman", "chicken", "mouth", "snail", "crab", 
+	"leaf", "pizza", "alligator", "lamp", "pencil", "carrot", "lips", 
+	"frog", "clock", "jar", "ant", "legs", "eyes", "spider", "eye", "doll", 
+	"octopus", "light", "square", "book", "blocks", "ears", "broom", 
+	"jellyfish", "banana", "table", "ear", "bunk bed", "pig", "elephant", 
+	"feet", "finger", "mouse", "circle", "coat", "duck", "moon", "bread", 
+	"lion", "face", "butterfly", "giraffe", "egg", "cookie", "seashell", 
+	"pie", "ball", "bee", "motorcycle", "bike", "ice cream cone", 
+	"bridge", "shirt", "inchworm", "bench", "lollipop", "cat", 
+	"spider web", "car", "drum", "orange", "dog", "hat", "swing",
+	"ocean", "apple", "socks", "airplane", "door", "grapes", "hamburger", 
+	"lemon", "flower", "beach", "kite", "train", "person", "heart", 
+	"cow", "robot", "bat", "grass", "chair", "tail", "smile", "desk", 
+	"computer", "snake", "glasses", "worm", "bracelet", "water", 
+	"candle", "slide", "spoon", "blanket", "horse", "monster", "pen", 
+	"whale", "nose", "bug", "boy", "lizard", "bird", "wheel", "caterpillar", 
+	"monkey", "cheese", "hand", "rocket", "basketball", "oval", "pants", 
+	"Mickey Mouse", "purse", "cup", "turtle", "jacket", "hippo", "stairs", 
+	"house", "boat", "tree", "helicopter", "truck", "bell", "star", "bear", 
+	"corn", "girl", "bunny", "cloud", "football", "skateboard", "ghost", "sun", "baby"]
 
 // event-handler for new incoming connections 
 io.on('connection', function (socket){
@@ -146,16 +169,17 @@ io.on('connection', function (socket){
 	function gameStart(){
 		console.log("Game Start");
 		drawer = -1;
-		gameProg = true;
+		inProg = true;
 		line_history = [];
 		nextPlayer();
 	}
 
 	function nextPlayer(){
+		newWord();
 		if(drawer + 1 < connectedUsers.length){
 			drawer++;
 			line_history = [];
-			console.log("Now drawing: " + connectedUsers[drawer].username);
+			console.log("Now drawing (" + word +"): " + connectedUsers[drawer].username);
 			io.sockets.emit('newTurn', connectedUsers[drawer]);
 			console.log(connectedUsers[drawer].id);
 			io.to(connectedUsers[drawer].id).emit('newWord', {'word' : word});
@@ -175,21 +199,59 @@ io.on('connection', function (socket){
 		nextPlayer();
 	}
 
-	socket.on('message', function(data){
-		if(inProg){
-			if(data.message == word){
-				console.log(username + " has guessed correctly!");
-				turnWinner();
-			}
-			else{
-				io.sockets.emit('message', { 'username' : username, 'message' : data.message})
-			}
+	socket.on('message', function (data){
+		// check if it is a command
+		if (data.message.substr(0, 1) == "/") {
+			// split command and parameters
+			var options = data.message.split(" ");
+			
+			// get command
+			var command = options[0];
+			command = command.substr(1, command.length)
+			
+			// get params
+			var params = options;			
+			params.splice(0, 1);
+			
+			// pass to execute
+			executeCommand(command, params);
 		}
 		else {
-			io.sockets.emit('message', { 'username' : username, 'message' : data.message})
+			if (inProg) {
+				if (data.message == word) {
+					console.log(username + " has guessed correctly!");
+					turnWinner();
+				}
+				else {
+					io.sockets.emit('message', { 'username' : username, 'message' : data.message })
+				}
+			}
+			else {
+				io.sockets.emit('message', { 'username' : username, 'message' : data.message })
+			}
+			console.log(username + ": " + data.message);
 		}
-		console.log(username + ": " + data.message);
 	});
+	
+	function executeCommand(command, params){
+		if (command == "start") {
+			gameStart();
+		}
+		else if (command == "clear") {
+			clearCanvas();
+		}
+		else if (command == "skip") {
+			nextPlayer();
+		}
+	}
+	
+	function newWord(){
+		// Get from here
+		// https://www.thegamegal.com/wordgenerator/generator.php?game=2&category=6
+		var randIndex = Math.floor(Math.random() * words.length);
+		word = words[randIndex];
+		console.log(word);
+	}
 
 	/***********/
 	/* DRAWING */
@@ -206,7 +268,7 @@ io.on('connection', function (socket){
 
 	/* DEBUGGING MESSAGES */
 	socket.on('debug', function(){
-		console.log(connectedUsers);
+		newWord();
 	});
 
 	socket.on('gameStart', function(){
@@ -218,9 +280,13 @@ io.on('connection', function (socket){
 	})
 
 	socket.on('debugClear', function(){
+		clearCanvas();
+	})
+	
+	function clearCanvas(){
 		line_history = [];
 		io.sockets.emit('clearCanvas', {});
-	})
+	}
 	
 	/*********/
 	/* OTHER */
