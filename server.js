@@ -51,7 +51,7 @@ function refreshWordArray() {
 	var http = require('https');
 	var options = {
 		host: 'www.thegamegal.com',
-		path: '/wordgenerator/generator.php?game=2&category=6'
+		path: '/wordgenerator/generator.php?game=2&category=7'
 	};
 	
 	var req = http.get(options, function (res) {
@@ -65,9 +65,9 @@ function refreshWordArray() {
 			bodyChunks.push(chunk);
 		}).on('end', function () {
 			var body = Buffer.concat(bodyChunks);
-			console.log('BODY: ' + body);
 			words = JSON.parse(body);
-			console.log(words);
+			words.push("meme");
+			words.push("pepe");
 			// ...and/or process the entire body here.
 		})
 	});
@@ -300,20 +300,8 @@ io.on('connection', function (socket){
 
 	/* DEBUGGING MESSAGES */
 	socket.on('debug', function(){
-		makeReq();
+		console.log(words);
 	});
-
-	socket.on('gameStart', function(){
-		gameStart();
-	})
-
-	socket.on('nextPlayer', function(){
-		nextPlayer();
-	})
-
-	socket.on('debugClear', function(){
-		clearCanvas();
-	})
 	
 	function clearCanvas(){
 		line_history = [];

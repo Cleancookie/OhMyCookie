@@ -23,15 +23,15 @@ $(document).ready(function (){
 	clearCanvas();
 
 	// register mouse event handlers
-	canvas.onmousedown = function(e){ 
+	$('*')[0].onmousedown = function(e){ 
 		mouse.click = true; 
 	};
-	canvas.onmouseup = function(e){ 
+	$('*')[0].onmouseup = function(e){ 
 		mouse.click = false; 
 	};
 
 	// normalize mouse position to range 0.0 - 1.0
-	canvas.onmousemove = function (e) {
+	$('*')[0].onmousemove = function (e) {
 		// Make sure it's relative to the canvas
 		mouse.pos.x = (e.clientX - $('#drawing').offset().left) / width;
 		mouse.pos.y = (e.clientY - $('#drawing').offset().top) / height;
@@ -221,7 +221,7 @@ $(document).ready(function (){
 		if (hasName) {
 			$('#txtMsg').focus();
 		}
-		setTimeout(mainLoop, (1/30));
+		setTimeout(mainLoop, (1/60));
 	}
 
 	mainLoop();
@@ -315,18 +315,6 @@ function sendMsg(message){
 // debug
 function debug(){
 	socket.emit('debug', {});
-}
-
-function debugClear(){
-	socket.emit('debugClear', {})
-}
-
-function gameStart(){
-	socket.emit('gameStart', {})
-}
-
-function nextPlayer(){
-	socket.emit('nextPlayer', {})
 }
 
 /* SOCKETS CHEAT SHEET
