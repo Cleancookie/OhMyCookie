@@ -165,6 +165,7 @@ $(document).ready(function (){
 		word = data.word;
 		appendMsg("Your word to draw: " + word);
 		console.log("Your word to draw: " + word);
+		// make modal
 	})
 
 	// Receive a message from the server

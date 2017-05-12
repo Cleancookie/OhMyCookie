@@ -66,8 +66,6 @@ function refreshWordArray() {
 		}).on('end', function () {
 			var body = Buffer.concat(bodyChunks);
 			words = JSON.parse(body);
-			words.push("meme");
-			words.push("pepe");
 			// ...and/or process the entire body here.
 		})
 	});
