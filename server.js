@@ -247,7 +247,7 @@ io.on('connection', function (socket){
 		else {
 			if (inProg && username != connectedUsers[drawer].username) {
 				// check if the message matches the word
-				if (data.message.toLowerCase == word.toLowerCase) {
+				if (data.message.toLowerCase() == word.toLowerCase()) {
 					console.log(username + " has guessed correctly!");
 					turnWinner();
 				}
