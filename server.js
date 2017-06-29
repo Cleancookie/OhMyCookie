@@ -51,7 +51,7 @@ function refreshWordArray() {
 	var http = require('https');
 	var options = {
 		host: 'www.thegamegal.com',
-		path: '/wordgenerator/generator.php?game=2&category=9'
+		path: '/wordgenerator/generator.php?game=2&category=15' // Change number for difficulty
 	};
 	
 	var req = http.get(options, function (res) {
