@@ -228,39 +228,46 @@ io.on('connection', function (socket){
 	}
 
 	socket.on('message', function (data){
-		// check if it is a command
-		if (data.message.substr(0, 1) == "/") {
-			// split command and parameters
-			var options = data.message.split(" ");
-			
-			// get command
-			var command = options[0];
-			command = command.substr(1, command.length)
-			
-			// get params
-			var params = options;			
-			params.splice(0, 1);
-			
-			// pass to execute
-			executeCommand(command, params);
-		}
-		else {
-			if (inProg && username != connectedUsers[drawer].username) {
-				// check if the message matches the word
-				if (data.message.toLowerCase() == word.toLowerCase()) {
-					console.log(username + " has guessed correctly!");
-					turnWinner();
-				}
-				else {
-					io.sockets.emit('message', { 'username' : username, 'message' : data.message })
-				}
+		// check if blank
+		try{
+			// check if it is a command
+			if (data.message.substr(0, 1) == "/") {
+				// split command and parameters
+				var options = data.message.split(" ");
+				
+				// get command
+				var command = options[0];
+				command = command.substr(1, command.length)
+				
+				// get params
+				var params = options;			
+				params.splice(0, 1);
+				
+				// pass to execute
+				executeCommand(command, params);
 			}
 			else {
-				// emit back the message with the username on it
-				io.sockets.emit('message', { 'username' : username, 'message' : data.message })
+				if (inProg && username != connectedUsers[drawer].username) {
+					// check if the message matches the word
+					if (data.message.toLowerCase() == word.toLowerCase()) {
+						console.log(username + " has guessed correctly!");
+						turnWinner();
+					}
+					else {
+						io.sockets.emit('message', { 'username' : username, 'message' : data.message })
+					}
+				}
+				else {
+					// emit back the message with the username on it
+					io.sockets.emit('message', { 'username' : username, 'message' : data.message })
+				}
+				console.log(username + ": " + data.message);
 			}
-			console.log(username + ": " + data.message);
+		} catch ( err ) {
+			console.log("Error has occured in Socket.on('message')")
+
 		}
+		
 	});
 	
 	function executeCommand(command, params){
