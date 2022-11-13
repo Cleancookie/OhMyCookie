@@ -1,13 +1,14 @@
 {
   "name": "OhMyCookie",
   "description": "Pictionary Test",
-  "author": "Code-and.Coffee",
+  "author": "Cleancookie",
   "dependencies": {
     "express": "^4.15.2",
     "mongoose": "^4.9.4",
     "socket.io": "^1.7.3"
   },
   "scripts": {
+    "docker": "npm i && node server.js",
     "start": "node server.js"
   },
   "version": "1.0.0",

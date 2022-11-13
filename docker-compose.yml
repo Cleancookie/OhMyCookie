@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  nodejs:
+    image: node:12-alpine
+    container_name: ohmycookie
+    restart: unless-stopped
+    working_dir: /home/node/app
+    environment:
+      - PORT=3000
+    ports:
+      - "80:3000"
+    volumes:
+      - .:/home/node/app
+    command: npm run docker
